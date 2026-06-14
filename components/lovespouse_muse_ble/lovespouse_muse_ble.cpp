@@ -52,7 +52,7 @@ void LovespouseMuseBleHub::send_command(uint8_t raw_cmd) {
     ESP_LOGD(TAG, "Broadcasting command %02X using prefix %s: %s", raw_cmd, this->device_prefix_.c_str(), format_hex_pretty(packet).c_str());
     esp32_ble_server::global_ble_server->set_manufacturer_data(packet);
 
-    uint16_t interval_units = 160; // 100ms
+    uint16_t interval_units = 48; // 30ms (30 / 0.625 = 48)
     esp_ble_adv_params_t custom_adv_params = {};
     custom_adv_params.adv_int_min = interval_units;
     custom_adv_params.adv_int_max = interval_units;
