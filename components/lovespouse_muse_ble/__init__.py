@@ -40,12 +40,17 @@ def find_device_profile(barcode, name):
     # Stage 1: Try official static API URL (does not require login/auth)
     if barcode:
         url = f"https://lovespouse.zlmicro.com/index.php?g=App&m=Diyapp&a=getproductdetail&barcode={barcode}&userid=-1"
+        # Alternative official API (requires active auth token header):
+        # https://api.peacelovebd.com/muse/v1/device/product_detail?barcode={barcode}
         data = fetch_json(url)
         if data and isinstance(data, dict) and data.get("response", {}).get("result") is True:
             return data.get("data")
 
     # Stage 2: Try local consolidated file cloned with the component (relative to __file__)
     local_db = os.path.join(os.path.dirname(__file__), "devices.json")
+    # Alternative remote fallbacks previously used (removed to optimize compile latency):
+    # - Single device file: https://raw.githubusercontent.com/arz321/MuSe-Protocol/master/base/{barcode}.json
+    # - Base database index: https://raw.githubusercontent.com/arz321/MuSe-Protocol/master/base/base1000-9999.json
     if os.path.exists(local_db):
         try:
             with open(local_db, "r", encoding="utf-8") as f:
