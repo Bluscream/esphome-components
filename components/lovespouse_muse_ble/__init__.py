@@ -13,15 +13,6 @@ CONF_DEVICE_PREFIX  = "device_prefix"
 CONF_DEVICE_BARCODE = "device_barcode"
 CONF_DEVICE_NAME    = "device_name"
 
-CONFIG_SCHEMA = cv.Schema(
-    {
-        cv.GenerateID(): cv.declare_id(LovespouseMuseBleHub),
-        cv.Required(CONF_DEVICE_PREFIX):          cv.string,
-        cv.Optional(CONF_DEVICE_BARCODE, default=0): cv.positive_int,
-        cv.Optional(CONF_DEVICE_NAME,    default=""): cv.string,
-    }
-).extend(cv.COMPONENT_SCHEMA)
-
 import urllib.request
 import urllib.error
 
@@ -64,6 +55,37 @@ def find_device_profile(barcode, name):
             pass
             
     return None
+
+def validate_hub(config):
+    prefix = config.get(CONF_DEVICE_PREFIX)
+    barcode = config.get(CONF_DEVICE_BARCODE)
+    name = config.get(CONF_DEVICE_NAME)
+    if not prefix:
+        if not barcode and not name:
+            raise cv.Invalid("Either device_prefix, device_barcode, or device_name must be specified.")
+        profile = find_device_profile(barcode, name)
+        if profile and "BroadcastPrefix" in profile:
+            raw_prefix = profile["BroadcastPrefix"]
+            try:
+                resolved = "".join([chr(int(x, 16)) for x in raw_prefix.split()])
+                config[CONF_DEVICE_PREFIX] = resolved
+            except Exception as e:
+                raise cv.Invalid(f"Failed to parse BroadcastPrefix '{raw_prefix}' from device profile: {e}")
+        else:
+            raise cv.Invalid("device_prefix is required but could not be resolved from device_barcode or device_name.")
+    return config
+
+CONFIG_SCHEMA = cv.All(
+    cv.Schema(
+        {
+            cv.GenerateID(): cv.declare_id(LovespouseMuseBleHub),
+            cv.Optional(CONF_DEVICE_PREFIX):          cv.string,
+            cv.Optional(CONF_DEVICE_BARCODE, default=0): cv.positive_int,
+            cv.Optional(CONF_DEVICE_NAME,    default=""): cv.string,
+        }
+    ).extend(cv.COMPONENT_SCHEMA),
+    validate_hub
+)
 
 def get_device_presets(barcode, name):
     profile = find_device_profile(barcode, name)
