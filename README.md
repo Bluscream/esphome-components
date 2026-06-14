@@ -33,7 +33,7 @@ external_components:
 
 ### Example Usage for `lovespouse_muse_ble`
 
-Defines the BLE hub controller and exposes it as a Home Assistant `fan` entity:
+Defines the BLE hub controller and exposes it as a Home Assistant `fan` (vibration) and `light` (LED color control) entity:
 
 ```yaml
 lovespouse_muse_ble:
@@ -48,6 +48,12 @@ fan:
     name: "Toy Vibration"
     id: toy_vibration
     icon: "mdi:vibrate"
+
+light:
+  - platform: lovespouse_muse_ble
+    lovespouse_muse_ble_id: muse_ble
+    name: "Toy LED"
+    id: toy_led
 ```
 
 ---
