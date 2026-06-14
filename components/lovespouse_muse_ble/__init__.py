@@ -56,14 +56,31 @@ def find_device_profile(barcode, name):
             
     return None
 
+HUB_LED_SUPPORT = {}
+
 def validate_hub(config):
     prefix = config.get(CONF_DEVICE_PREFIX)
     barcode = config.get(CONF_DEVICE_BARCODE)
     name = config.get(CONF_DEVICE_NAME)
+    
+    # Resolve profile to determine LED support
+    profile = find_device_profile(barcode, name)
+    has_led = False
+    if profile:
+        classic_ids = profile.get("ClassicId", [])
+        if classic_ids and isinstance(classic_ids, list):
+            for classic_info in classic_ids:
+                groups = classic_info.get("Groups", [])
+                for g in groups:
+                    g_name = g.get("Name", "")
+                    if "Coloured Lights" in g_name or "发光" in g_name:
+                        has_led = True
+                        break
+    HUB_LED_SUPPORT[str(config[CONF_ID])] = has_led
+
     if not prefix:
         if not barcode and not name:
             raise cv.Invalid("Either device_prefix, device_barcode, or device_name must be specified.")
-        profile = find_device_profile(barcode, name)
         if profile and "BroadcastPrefix" in profile:
             raw_prefix = profile["BroadcastPrefix"]
             try:
