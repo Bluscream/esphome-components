@@ -48,7 +48,7 @@ void LovespouseMuseBleFan::write_state_() {
         raw_cmd = 0x09;
       }
     } else {
-      raw_cmd = 0x10 + this->speed; // Speed 1-10 -> 0x11-0x1A
+      raw_cmd = (this->speed == 10) ? 0x20 : (0x10 + this->speed); // Speed 1-9 -> 0x11-0x19, Speed 10 -> 0x20
     }
   }
   this->parent_->send_command(raw_cmd);
