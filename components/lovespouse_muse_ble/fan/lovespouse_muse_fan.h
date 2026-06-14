@@ -21,6 +21,7 @@ class LovespouseMuseBleFan : public fan::Fan, public Component {
   void write_state_();
 
   LovespouseMuseBleHub *parent_;
+  bool use_speed_mode_{true};
 };
 
 } // namespace lovespouse_muse_ble

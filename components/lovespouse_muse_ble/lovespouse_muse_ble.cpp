@@ -26,10 +26,24 @@ void LovespouseMuseBleHub::setup() {
 void LovespouseMuseBleHub::dump_config() {
   ESP_LOGCONFIG(TAG, "Lovespouse Muse BLE Hub:");
   ESP_LOGCONFIG(TAG, "  Device Prefix: %s", this->device_prefix_.c_str());
+  ESP_LOGCONFIG(TAG, "  Device Name: %s", this->device_name_.c_str());
+  ESP_LOGCONFIG(TAG, "  Device Barcode: %u", this->device_barcode_);
   ESP_LOGCONFIG(TAG, "  Parsed Prefix Bytes: %s", format_hex_pretty(this->prefix_bytes_).c_str());
 }
 
 void LovespouseMuseBleHub::send_command(uint8_t raw_cmd) {
+  this->last_cmd_ = raw_cmd;
+
+  if (raw_cmd == 0x00) {
+    ESP_LOGD(TAG, "Stopping advertising (Stop Command 00)");
+#ifdef USE_ESP32
+    if (esp32_ble_server::global_ble_server != nullptr) {
+      esp_ble_gap_stop_advertising();
+    }
+#endif
+    return;
+  }
+
   uint8_t comp_id[2] = {0xF0, 0xFF};
   std::vector<uint8_t> packet(comp_id, comp_id + 2);
 
@@ -52,14 +66,36 @@ void LovespouseMuseBleHub::send_command(uint8_t raw_cmd) {
     custom_adv_params.channel_map = ADV_CHNL_ALL;
     custom_adv_params.adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY;
 
-    this->cancel_timeout("stop_advertising");
     esp_ble_gap_stop_advertising();
     esp_ble_gap_start_advertising(&custom_adv_params);
+  }
+#endif
+}
 
-    this->set_timeout("stop_advertising", 1000, []() {
-      ESP_LOGD("lovespouse_muse_ble.hub", "Stopping advertising");
-      esp_ble_gap_stop_advertising();
-    });
+void LovespouseMuseBleHub::loop() {
+#ifdef USE_ESP32
+  if (this->last_cmd_ == 0x00 || this->last_cmd_ == 0xFF) {
+    return;
+  }
+  uint32_t now = millis();
+  if (now - this->last_adv_time_ < 500) {
+    return;
+  }
+  this->last_adv_time_ = now;
+
+  // Re-assert advertising in case the BLE stack dropped it silently
+  if (esp32_ble_server::global_ble_server != nullptr) {
+    ESP_LOGV(TAG, "Re-asserting advertising for cmd %02X", this->last_cmd_);
+    uint16_t interval_units = 160; // 100ms
+    esp_ble_adv_params_t adv_params = {};
+    adv_params.adv_int_min = interval_units;
+    adv_params.adv_int_max = interval_units;
+    adv_params.adv_type = ADV_TYPE_IND;
+    adv_params.own_addr_type = BLE_ADDR_TYPE_PUBLIC;
+    adv_params.channel_map = ADV_CHNL_ALL;
+    adv_params.adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY;
+    esp_ble_gap_stop_advertising();
+    esp_ble_gap_start_advertising(&adv_params);
   }
 #endif
 }

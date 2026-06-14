@@ -7,7 +7,12 @@ namespace lovespouse_muse_ble {
 static const char *TAG = "lovespouse_muse_ble.fan";
 
 void LovespouseMuseBleFan::setup() {
-  this->set_supported_preset_modes({"None", "Preset 1", "Preset 2", "Preset 3", "Short Medium", "Fast Pulse", "Preset 6", "Preset 7", "Ramp Up", "Alternating"});
+  std::vector<const char *> modes;
+  modes.push_back("None");
+  for (const auto &preset : this->parent_->get_presets()) {
+    modes.push_back(preset.first.c_str());
+  }
+  this->set_supported_preset_modes(modes);
 }
 
 void LovespouseMuseBleFan::dump_config() {
@@ -28,37 +33,35 @@ void LovespouseMuseBleFan::control(const fan::FanCall &call) {
   }
   if (call.get_speed().has_value()) {
     this->speed = *call.get_speed();
+    this->use_speed_mode_ = true;
   }
   this->apply_preset_mode_(call);
+  if (call.get_preset_mode() != nullptr) {
+    this->use_speed_mode_ = false;
+  }
   this->write_state_();
 }
 
 void LovespouseMuseBleFan::write_state_() {
   uint8_t raw_cmd = 0x00;
   if (this->state) {
-    if (this->has_preset_mode() && this->get_preset_mode() != "None") {
+    if (!this->use_speed_mode_ && this->has_preset_mode()) {
       auto mode = this->get_preset_mode();
-      if (mode == "Preset 1") {
-        raw_cmd = 0x01;
-      } else if (mode == "Preset 2") {
-        raw_cmd = 0x02;
-      } else if (mode == "Preset 3") {
-        raw_cmd = 0x03;
-      } else if (mode == "Short Medium") {
-        raw_cmd = 0x04;
-      } else if (mode == "Fast Pulse") {
-        raw_cmd = 0x05;
-      } else if (mode == "Preset 6") {
-        raw_cmd = 0x06;
-      } else if (mode == "Preset 7") {
-        raw_cmd = 0x07;
-      } else if (mode == "Ramp Up") {
-        raw_cmd = 0x08;
-      } else if (mode == "Alternating") {
-        raw_cmd = 0x09;
+      bool found = false;
+      for (const auto &preset : this->parent_->get_presets()) {
+        if (preset.first == mode) {
+          raw_cmd = preset.second;
+          found = true;
+          break;
+        }
       }
-    } else {
-      raw_cmd = (this->speed == 10) ? 0x20 : (0x10 + this->speed); // Speed 1-9 -> 0x11-0x19, Speed 10 -> 0x20
+      if (!found) {
+        this->use_speed_mode_ = true;
+      }
+    }
+    if (this->use_speed_mode_) {
+      // Speed 1-9 -> 0x11-0x19, Speed 10 -> 0x20
+      raw_cmd = (this->speed == 10) ? 0x20 : (0x10 + this->speed);
     }
   }
   this->parent_->send_command(raw_cmd);
@@ -67,4 +70,3 @@ void LovespouseMuseBleFan::write_state_() {
 
 } // namespace lovespouse_muse_ble
 } // namespace esphome
-
