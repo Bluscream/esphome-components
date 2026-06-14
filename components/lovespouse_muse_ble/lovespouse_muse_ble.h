@@ -21,15 +21,12 @@ class LovespouseMuseBleHub : public Component {
   void dump_config() override;
 
   void set_device_prefix(const std::string &prefix) { this->device_prefix_ = prefix; }
-  void set_advertising_active(bool active);
-  bool is_advertising_active() const { return this->advertising_active_; }
 
   void send_command(uint8_t raw_cmd);
 
  protected:
   std::string device_prefix_;
   std::vector<uint8_t> prefix_bytes_;
-  bool advertising_active_{true};
 
   // Whitening and CRC helper functions
   void whitening_init(uint8_t val, uint8_t* ctx);

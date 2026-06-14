@@ -29,15 +29,6 @@ void LovespouseMuseBleHub::dump_config() {
   ESP_LOGCONFIG(TAG, "  Parsed Prefix Bytes: %s", format_hex_pretty(this->prefix_bytes_).c_str());
 }
 
-void LovespouseMuseBleHub::set_advertising_active(bool active) {
-  this->advertising_active_ = active;
-#ifdef USE_ESP32
-  if (!active) {
-    esp_ble_gap_stop_advertising();
-  }
-#endif
-}
-
 void LovespouseMuseBleHub::send_command(uint8_t raw_cmd) {
   uint8_t comp_id[2] = {0xF0, 0xFF};
   std::vector<uint8_t> packet(comp_id, comp_id + 2);
@@ -48,7 +39,7 @@ void LovespouseMuseBleHub::send_command(uint8_t raw_cmd) {
   }
 
 #ifdef USE_ESP32
-  if (this->advertising_active_ && esp32_ble_server::global_ble_server != nullptr) {
+  if (esp32_ble_server::global_ble_server != nullptr) {
     ESP_LOGD(TAG, "Broadcasting command %02X using prefix %s: %s", raw_cmd, this->device_prefix_.c_str(), format_hex_pretty(packet).c_str());
     esp32_ble_server::global_ble_server->set_manufacturer_data(packet);
 
