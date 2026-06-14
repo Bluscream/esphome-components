@@ -44,9 +44,12 @@ void LovespouseMuseBleFan::control(const fan::FanCall &call) {
 
 void LovespouseMuseBleFan::write_state_() {
   uint8_t raw_cmd = 0x00;
-  if (this->state) {
-    if (!this->use_speed_mode_ && this->has_preset_mode()) {
-      auto mode = this->get_preset_mode();
+  if (!this->use_speed_mode_ && this->has_preset_mode()) {
+    auto mode = this->get_preset_mode();
+    if (mode == "None") {
+      raw_cmd = 0x00;
+      this->state = false;
+    } else {
       bool found = false;
       for (const auto &preset : this->parent_->get_presets()) {
         if (preset.first == mode) {
@@ -55,13 +58,19 @@ void LovespouseMuseBleFan::write_state_() {
           break;
         }
       }
-      if (!found) {
+      if (found) {
+        this->state = true;
+      } else {
         this->use_speed_mode_ = true;
       }
     }
-    if (this->use_speed_mode_) {
+  }
+  if (this->use_speed_mode_) {
+    if (this->state) {
       // Speed 1-9 -> 0x11-0x19, Speed 10 -> 0x20
       raw_cmd = (this->speed == 10) ? 0x20 : (0x10 + this->speed);
+    } else {
+      raw_cmd = 0x00;
     }
   }
   this->parent_->send_command(raw_cmd);
