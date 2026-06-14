@@ -37,9 +37,9 @@ def fetch_json(url):
         return None
 
 def find_device_profile(barcode, name):
-    # Stage 1: Try official API URL (requires active auth in real app, but we check if it responds with success)
+    # Stage 1: Try official static API URL (does not require login/auth)
     if barcode:
-        url = f"https://api.peacelovebd.com/muse/v1/device/product_detail?barcode={barcode}"
+        url = f"https://lovespouse.zlmicro.com/index.php?g=App&m=Diyapp&a=getproductdetail&barcode={barcode}&userid=-1"
         data = fetch_json(url)
         if data and isinstance(data, dict) and data.get("response", {}).get("result") is True:
             return data.get("data")
