@@ -52,7 +52,7 @@ void LovespouseMuseBleHub::send_command(uint8_t raw_cmd) {
     ESP_LOGD(TAG, "Broadcasting command %02X using prefix %s: %s", raw_cmd, this->device_prefix_.c_str(), format_hex_pretty(packet).c_str());
     esp32_ble_server::global_ble_server->set_manufacturer_data(packet);
 
-    uint16_t interval_units = 48; // 30ms (30 / 0.625 = 48)
+    uint16_t interval_units = 160; // 100ms (100 / 0.625 = 160)
     esp_ble_adv_params_t custom_adv_params = {};
     custom_adv_params.adv_int_min = interval_units;
     custom_adv_params.adv_int_max = interval_units;
@@ -65,13 +65,10 @@ void LovespouseMuseBleHub::send_command(uint8_t raw_cmd) {
     esp_ble_gap_stop_advertising();
     esp_ble_gap_start_advertising(&custom_adv_params);
 
-    // If it is NOT a vibration speed command (0x11-0x1A), stop advertising after 1500ms
-    if (raw_cmd < 0x11 || raw_cmd > 0x1A) {
-      this->set_timeout("stop_advertising", 1500, []() {
-        ESP_LOGD("lovespouse_muse_ble.hub", "Stopping temporary advertising for non-vibration command");
-        esp_ble_gap_stop_advertising();
-      });
-    }
+    this->set_timeout("stop_advertising", 1000, []() {
+      ESP_LOGD("lovespouse_muse_ble.hub", "Stopping advertising");
+      esp_ble_gap_stop_advertising();
+    });
   }
 #endif
 }
