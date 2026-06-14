@@ -44,14 +44,7 @@ def find_device_profile(barcode, name):
         if data and isinstance(data, dict) and data.get("response", {}).get("result") is True:
             return data.get("data")
 
-    # Stage 2: Try remote raw GitHub (arz321/MuSe-Protocol master branch)
-    if barcode:
-        url = f"https://raw.githubusercontent.com/arz321/MuSe-Protocol/master/base/{barcode}.json"
-        data = fetch_json(url)
-        if data and isinstance(data, dict):
-            return data.get("data") if "data" in data else data
-
-    # Stage 3: Try local files cloned with the component (relative to __file__)
+    # Stage 2: Try local consolidated file cloned with the component (relative to __file__)
     local_db = os.path.join(os.path.dirname(__file__), "devices.json")
     if os.path.exists(local_db):
         try:
@@ -64,16 +57,6 @@ def find_device_profile(barcode, name):
                         return item
         except Exception:
             pass
-
-    # Stage 4 (Fallback Last Resort): Try remote base1000-9999.json from raw github
-    url = "https://raw.githubusercontent.com/arz321/MuSe-Protocol/master/base/base1000-9999.json"
-    base_data = fetch_json(url)
-    if base_data and isinstance(base_data, dict):
-        for item in base_data.get("data", []):
-            if barcode and item.get("BarCode") == str(barcode):
-                return item
-            if name and item.get("DeviceTitle") == name:
-                return item
             
     return None
 
