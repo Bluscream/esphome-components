@@ -1,0 +1,104 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LoveSpouse Device Profile Schema",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/device"
+      }
+    }
+  },
+  "required": ["data"],
+  "definitions": {
+    "device": {
+      "type": "object",
+      "properties": {
+        "Id": { "type": "integer" },
+        "Userid": { "type": "integer" },
+        "Title": { "type": "string" },
+        "Name": { "type": "string" },
+        "DeviceTitle": { "type": "string" },
+        "BarCode": { "type": "string" },
+        "CateId": { "type": "integer" },
+        "Cate": {
+          "type": "object",
+          "properties": {
+            "Id": { "type": "integer" },
+            "Name": { "type": "string" }
+          }
+        },
+        "FactoryId": { "type": "integer" },
+        "SellerId": { "type": "integer" },
+        "ClassicId": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "Id": { "type": "integer" },
+              "Name": { "type": "string" },
+              "Groups": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "Id": { "type": "integer" },
+                    "Name": { "type": "string" },
+                    "Special": { "type": "integer" },
+                    "Buttons": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "Id": { "type": "integer" },
+                          "Name": { "type": "string" },
+                          "Image": { "type": "string" },
+                          "ImageClick": { "type": "string" },
+                          "Command": { "type": "integer" },
+                          "StopCommand": { "type": "string" }
+                        },
+                        "required": ["Id", "Name", "Command"]
+                      }
+                    }
+                  },
+                  "required": ["Id", "Name", "Buttons"]
+                }
+              }
+            },
+            "required": ["Id", "Name"]
+          }
+        },
+        "Setting": { "type": ["array", "null"] },
+        "Wireless": { "type": "string" },
+        "CreateTime": { "type": "integer" },
+        "UpdateTime": { "type": "integer" },
+        "Status": { "type": "integer" },
+        "Pics": { "type": "string" },
+        "Func": { "type": "string" },
+        "FuncObj": {
+          "type": "object",
+          "additionalProperties": { "type": "boolean" }
+        },
+        "ProductFuncs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "Id": { "type": "integer" },
+              "Name": { "type": "string" },
+              "Code": { "type": "string" }
+            },
+            "required": ["Id", "Name", "Code"]
+          }
+        },
+        "BroadcastPrefix": { "type": "string" },
+        "BleName": { "type": "string" },
+        "IsBlacklist": { "type": "integer" },
+        "Qrcode": { "type": "string" },
+        "GamePath": { "type": "string" }
+      },
+      "required": ["BarCode", "DeviceTitle", "ClassicId"]
+    }
+  }
+}

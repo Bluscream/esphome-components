@@ -52,30 +52,18 @@ def find_device_profile(barcode, name):
             return data.get("data") if "data" in data else data
 
     # Stage 3: Try local files cloned with the component (relative to __file__)
-    devices_dir = os.path.join(os.path.dirname(__file__), "devices")
-    if os.path.isdir(devices_dir):
-        if barcode:
-            path = os.path.join(devices_dir, f"{barcode}.json")
-            if os.path.exists(path):
-                try:
-                    with open(path, "r", encoding="utf-8") as f:
-                        data = json.load(f)
-                        return data.get("data") if "data" in data else data
-                except Exception:
-                    pass
-        
-        path = os.path.join(devices_dir, "base1000-9999.json")
-        if os.path.exists(path):
-            try:
-                with open(path, "r", encoding="utf-8") as f:
-                    base_data = json.load(f)
-                    for item in base_data.get("data", []):
-                        if barcode and item.get("BarCode") == str(barcode):
-                            return item
-                        if name and item.get("DeviceTitle") == name:
-                            return item
-            except Exception:
-                pass
+    local_db = os.path.join(os.path.dirname(__file__), "devices.json")
+    if os.path.exists(local_db):
+        try:
+            with open(local_db, "r", encoding="utf-8") as f:
+                base_data = json.load(f)
+                for item in base_data.get("data", []):
+                    if barcode and item.get("BarCode") == str(barcode):
+                        return item
+                    if name and item.get("DeviceTitle") == name:
+                        return item
+        except Exception:
+            pass
 
     # Stage 4 (Fallback Last Resort): Try remote base1000-9999.json from raw github
     url = "https://raw.githubusercontent.com/arz321/MuSe-Protocol/master/base/base1000-9999.json"

@@ -83320,6 +83320,112 @@
         {
             "Id": 0,
             "Userid": 0,
+            "Title": "LY-007B",
+            "Name": "",
+            "DeviceTitle": "AAGS080",
+            "BarCode": "8415",
+            "CateId": 13,
+            "Cate": {
+                "Id": 0,
+                "Name": ""
+            },
+            "FactoryId": 240,
+            "SellerId": 0,
+            "ClassicId": [
+                {
+                    "Id": 1,
+                    "Name": "普通经典",
+                    "Groups": [],
+                    "ClassicGroups": []
+                }
+            ],
+            "Setting": [],
+            "Wireless": "2.4g",
+            "CreateTime": 1694747627,
+            "UpdateTime": 1698911680,
+            "Status": 1,
+            "Pics": "https://image.zlmicro.com/images/product/20231102/20231102155439617.png",
+            "Func": "{\"ai_voice\":false,\"classic\":true,\"custom_mode\":false,\"customer_game\":false,\"discharge\":false,\"explore\":true,\"finger\":true,\"game\":true,\"heating\":false,\"intera\":true,\"kegel\":false,\"music\":true,\"shake\":true,\"strike\":false,\"switch_voice\":false,\"tot\":false,\"trends\":false,\"video\":true,\"video_voice\":false,\"voice\":false}",
+            "FuncObj": {
+                "ai_voice": false,
+                "classic": true,
+                "custom_mode": false,
+                "customer_game": false,
+                "discharge": false,
+                "explore": true,
+                "finger": true,
+                "game": true,
+                "heating": false,
+                "intera": true,
+                "kegel": false,
+                "music": true,
+                "shake": true,
+                "strike": false,
+                "switch_voice": false,
+                "tot": false,
+                "trends": false,
+                "video": true,
+                "video_voice": false,
+                "voice": false
+            },
+            "ProductFuncs": [
+                {
+                    "Id": 2,
+                    "Name": "经典模式",
+                    "Code": "classic"
+                },
+                {
+                    "Id": 3,
+                    "Name": "音乐模式",
+                    "Code": "music"
+                },
+                {
+                    "Id": 4,
+                    "Name": "摇一摇",
+                    "Code": "shake"
+                },
+                {
+                    "Id": 5,
+                    "Name": "互动模式",
+                    "Code": "intera"
+                },
+                {
+                    "Id": 7,
+                    "Name": "划一划",
+                    "Code": "finger"
+                },
+                {
+                    "Id": 12,
+                    "Name": "视频模式",
+                    "Code": "video"
+                },
+                {
+                    "Id": 13,
+                    "Name": "游戏模式",
+                    "Code": "game"
+                },
+                {
+                    "Id": 21,
+                    "Name": "探索模式",
+                    "Code": "explore"
+                }
+            ],
+            "BroadcastPrefix": "77 62 4d 53 45",
+            "BleName": "",
+            "IsBlacklist": 0,
+            "Qrcode": "https://image.zlmicro.com/images/product/qrcode/8415.png",
+            "GamePath": "",
+            "IsNewCommand": 0,
+            "IsPrivateProtocol": 0,
+            "SB": "",
+            "IsEncrypt": 0,
+            "EncryptCommand": "",
+            "IsPrecise": 1,
+            "is_ipao": 0
+        },
+        {
+            "Id": 0,
+            "Userid": 0,
             "Title": "谢勇待定",
             "DeviceTitle": "AAYJ006",
             "BarCode": "8440",
