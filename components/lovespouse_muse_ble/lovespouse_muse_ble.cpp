@@ -61,8 +61,17 @@ void LovespouseMuseBleHub::send_command(uint8_t raw_cmd) {
     custom_adv_params.channel_map = ADV_CHNL_ALL;
     custom_adv_params.adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY;
 
+    this->cancel_timeout("stop_advertising");
     esp_ble_gap_stop_advertising();
     esp_ble_gap_start_advertising(&custom_adv_params);
+
+    // If it is NOT a vibration speed command (0x11-0x1A), stop advertising after 1500ms
+    if (raw_cmd < 0x11 || raw_cmd > 0x1A) {
+      this->set_timeout("stop_advertising", 1500, []() {
+        ESP_LOGD("lovespouse_muse_ble.hub", "Stopping temporary advertising for non-vibration command");
+        esp_ble_gap_stop_advertising();
+      });
+    }
   }
 #endif
 }
