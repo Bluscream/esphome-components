@@ -33,16 +33,7 @@ void LovespouseMuseBleHub::dump_config() {
 
 void LovespouseMuseBleHub::send_command(uint8_t raw_cmd) {
   this->last_cmd_ = raw_cmd;
-
-  if (raw_cmd == 0x00) {
-    ESP_LOGD(TAG, "Stopping advertising (Stop Command 00)");
-#ifdef USE_ESP32
-    if (esp32_ble_server::global_ble_server != nullptr) {
-      esp_ble_gap_stop_advertising();
-    }
-#endif
-    return;
-  }
+  this->last_adv_time_ = millis();
 
   uint8_t comp_id[2] = {0xF0, 0xFF};
   std::vector<uint8_t> packet(comp_id, comp_id + 2);
@@ -74,10 +65,20 @@ void LovespouseMuseBleHub::send_command(uint8_t raw_cmd) {
 
 void LovespouseMuseBleHub::loop() {
 #ifdef USE_ESP32
-  if (this->last_cmd_ == 0x00 || this->last_cmd_ == 0xFF) {
+  if (this->last_cmd_ == 0xFF) {
     return;
   }
   uint32_t now = millis();
+  if (this->last_cmd_ == 0x00) {
+    if (now - this->last_adv_time_ > 2000) {
+      ESP_LOGD(TAG, "Stopping advertising (Stop Command broadcast finished)");
+      if (esp32_ble_server::global_ble_server != nullptr) {
+        esp_ble_gap_stop_advertising();
+      }
+      this->last_cmd_ = 0xFF;
+    }
+    return;
+  }
   if (now - this->last_adv_time_ < 500) {
     return;
   }
