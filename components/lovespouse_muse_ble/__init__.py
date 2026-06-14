@@ -142,6 +142,25 @@ async def to_code(config):
     cg.add(var.set_device_barcode(config[CONF_DEVICE_BARCODE]))
     cg.add(var.set_device_name(config[CONF_DEVICE_NAME]))
     
+    # Check if the device profile has controllable LEDs (Coloured Lights)
+    profile = find_device_profile(config[CONF_DEVICE_BARCODE], config[CONF_DEVICE_NAME])
+    has_led = False
+    if profile:
+        classic_ids = profile.get("ClassicId", [])
+        if classic_ids and isinstance(classic_ids, list):
+            for classic_info in classic_ids:
+                groups = classic_info.get("Groups", [])
+                for g in groups:
+                    g_name = g.get("Name", "")
+                    if "Coloured Lights" in g_name or "发光" in g_name:
+                        has_led = True
+                        break
+        title = profile.get("DeviceTitle") or config[CONF_DEVICE_NAME] or str(config[CONF_DEVICE_BARCODE])
+        if has_led:
+            print(f"INFO: [lovespouse_muse_ble] Device '{title}' supports controllable Coloured Lights (LEDs).")
+        else:
+            print(f"INFO: [lovespouse_muse_ble] Device '{title}' does not support controllable Coloured Lights (LEDs).")
+    
     presets = get_device_presets(config[CONF_DEVICE_BARCODE], config[CONF_DEVICE_NAME])
     for name, command in presets:
         cg.add(var.add_preset(name, command))
